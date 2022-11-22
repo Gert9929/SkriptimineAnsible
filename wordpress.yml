@@ -1,0 +1,43 @@
+---
+- hosts: webservers
+  tasks:
+
+  - name: Loome "wpdatabase"
+    mysql_db:
+      name: wpdatabase
+      state: present
+
+  - name: "wpuser ja qwerty"
+    mysql_user:
+      name: wpuser
+      password: qwerty
+      priv: 'wpdatabase.*:ALL,GRANT'
+      state: present
+      check_implicit_admin: yes
+
+  - name: alglaadimine mysql
+    service: name=mysql state=restarted
+  - name: ala
+    unarchive:
+      src: https://wordpress.org/latest.tar.gz
+      dest: /var/www/html/
+      remote_src: yes
+
+  - name: vahetmae
+    file:
+      path: /var/www/html/wordpress/
+      state: directory
+      recurse: yes
+      owner: www-data
+
+  - name: Copy
+    command: cp /var/www/html/wordpress/wp-config-sample.php /var/www/html/wordpress/wp-config.php
+  - name: Vahetame 1
+    lineinfile: dest=/var/www/html/wordpress/wp-config.php regexp="password_here" line="define( 'DB_PASSWORD', 'qwerty' );"
+
+  - name: Vahetame 2
+    lineinfile: dest=/var/www/html/wordpress/wp-config.php regexp="username_here" line="define( 'DB_USER', 'wpuser' );"
+
+  - name: Vahetame 3
+    lineinfile: dest=/var/www/html/wordpress/wp-config.php regexp="database_here" line="define( 'DB_NAME', 'wpdatabase' );"
+
